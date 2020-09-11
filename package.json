@@ -1,0 +1,28 @@
+{
+  "name": "config",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xesam/config.git"
+  },
+  "dependencies": {
+    "write-file-promise": "1.0.0",
+    "read-files-promise": "1.1.1",
+    "json5": "2.1.3"
+  },
+  "devDependencies": {
+    "jest": "26.4.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xesam/config/issues"
+  },
+  "homepage": "https://github.com/xesam/config#readme"
+}
