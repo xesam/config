@@ -4,10 +4,6 @@ const writeFile = require('write-file-promise');
 const readFiles = require('read-files-promise');
 const json5 = require('json5');
 
-function getHome() {
-    return process.env.HOME || process.env.USERPROFILE;
-}
-
 class Config {
     constructor(name, configPath) {
         this.name = name;
@@ -18,15 +14,12 @@ class Config {
         if (configPath) {
             return path.resolve(process.cwd(), configPath);
         } else {
-            return this.getDefaultPath(name);
-        }
-    }
-
-    getDefaultPath(name) {
-        if (name) {
-            return path.resolve(getHome(), name);
-        } else {
-            return path.resolve(getHome(), '.config.json5');
+            const home = process.env.HOME || process.env.USERPROFILE;
+            if (name) {
+                return path.resolve(home, `${name}.json5`);
+            } else {
+                return path.resolve(home, '.config.json5');
+            }
         }
     }
 
@@ -45,7 +38,7 @@ class Config {
     }
 
     dump(data) {
-        return writeFile(this._configPath, json5.stringify(data));
+        return writeFile(this._configPath, json5.stringify(data), { encoding: 'utf-8' });
     }
 
     dumpSync(data) {
