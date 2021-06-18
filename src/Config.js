@@ -4,33 +4,38 @@ const writeFile = require('write-file-promise');
 const readFiles = require('read-files-promise');
 const json5 = require('json5');
 
+const ENCODING = 'utf-8';
+
 class Config {
     constructor(name, configPath) {
+        if (!name) {
+            throw Error('no config name');
+        }
         this.name = name;
-        this._configPath = this.getConfigPath(name, configPath);
+        if (typeof configPath === 'function') {
+            this._configPath = configPath(name);
+        } else {
+            this._configPath = this.getConfigPath(name, configPath);
+        }
     }
 
     getConfigPath(name, configPath) {
         if (configPath) {
             return path.resolve(process.cwd(), configPath);
         } else {
-            const home = process.env.HOME || process.env.USERPROFILE;
-            if (name) {
-                return path.resolve(home, `${name}.json5`);
-            } else {
-                return path.resolve(home, '.config.json5');
-            }
+            const userHomeDir = process.env.HOME || process.env.USERPROFILE;
+            return path.resolve(userHomeDir, `${name}.json5`);
         }
     }
 
     load() {
-        return readFiles([this._configPath], { encoding: 'utf-8' })
+        return readFiles([this._configPath], {encoding: ENCODING})
             .then(json5.parse);
     }
 
     loadSync() {
         try {
-            const data = fs.readFileSync(this._configPath, "utf-8");
+            const data = fs.readFileSync(this._configPath, ENCODING);
             return json5.parse(data);
         } catch (e) {
             return {};
@@ -38,11 +43,11 @@ class Config {
     }
 
     dump(data) {
-        return writeFile(this._configPath, json5.stringify(data), { encoding: 'utf-8' });
+        return writeFile(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING});
     }
 
     dumpSync(data) {
-        fs.writeFileSync(this._configPath, json5.stringify(data, null, 2), { encoding: "utf-8" });
+        fs.writeFileSync(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING});
     }
 }
 

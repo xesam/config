@@ -22,7 +22,7 @@ describe('simple', () => {
 
     it('test async', () => {
         const cfg = new Config('t1', '1.json5');
-        cfg.dump({ val: 100 }).then(res => {
+        cfg.dump({val: 100}).then(res => {
             return cfg.load();
         }).then(res => {
             return expect(res.val).toBe(100);
@@ -31,16 +31,7 @@ describe('simple', () => {
 
     it('test home config file', () => {
         const cfg = new Config('home');
-        cfg.dump({ val: 100 }).then(res => {
-            return cfg.load();
-        }).then(res => {
-            return expect(res.val).toBe(100);
-        });
-    })
-
-    it('test default config file', () => {
-        const cfg = new Config();
-        cfg.dump({ val: 100 }).then(res => {
+        cfg.dump({val: 100}).then(res => {
             return cfg.load();
         }).then(res => {
             return expect(res.val).toBe(100);
