@@ -5,26 +5,35 @@ const readFiles = require('read-files-promise');
 const json5 = require('json5');
 
 const ENCODING = 'utf-8';
+let NAME_SEQ = 0;
+
+function nextSeq() {
+    NAME_SEQ++;
+    return NAME_SEQ;
+}
+
+function getUserHome() {
+    return process.env.HOME || process.env.USERPROFILE;
+}
 
 class Config {
     constructor(name, configPath) {
-        if (!name) {
-            throw Error('no config name');
-        }
-        this.name = name;
-        if (typeof configPath === 'function') {
-            this._configPath = configPath(name);
+        if (name) {
+            this.name = name;
         } else {
-            this._configPath = this.getConfigPath(name, configPath);
+            this.name = `Config$${nextSeq()}`;
         }
+        if (typeof configPath === 'function') {
+            configPath = configPath(name);
+        }
+        this._configPath = this.getConfigPath(name, configPath);
     }
 
     getConfigPath(name, configPath) {
         if (configPath) {
             return path.resolve(process.cwd(), configPath);
         } else {
-            const userHomeDir = process.env.HOME || process.env.USERPROFILE;
-            return path.resolve(userHomeDir, `${name}.json5`);
+            return path.resolve(getUserHome(), `${name}.json5`);
         }
     }
 
@@ -34,16 +43,15 @@ class Config {
     }
 
     loadSync() {
-        try {
-            const data = fs.readFileSync(this._configPath, ENCODING);
-            return json5.parse(data);
-        } catch (e) {
-            return {};
-        }
+        const data = fs.readFileSync(this._configPath, ENCODING);
+        return json5.parse(data);
     }
 
     dump(data) {
-        return writeFile(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING});
+        return writeFile(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING})
+            .then(()=>{
+                return data;
+            });
     }
 
     dumpSync(data) {

@@ -2,16 +2,15 @@ const Config = require('../src/Config');
 
 describe('simple', () => {
     it('test sync', () => {
-        const cfg = new Config('t1', '1.json5');
-        cfg.loadSync();
-        expect(cfg.name).toBe('t1');
+        const cfg = new Config('config.test', 'config.test.json5');
+        expect(cfg.name).toBe('config.test');
 
         cfg.dumpSync({
             val: 100
         });
-
         const a1 = cfg.loadSync();
         expect(a1.val).toBe(100);
+
         cfg.dumpSync({
             val: 200
         });
@@ -21,16 +20,15 @@ describe('simple', () => {
     })
 
     it('test async', () => {
-        const cfg = new Config('t1', '1.json5');
+        const cfg = new Config('config.test', 'config.test.json5');
         cfg.dump({val: 100}).then(res => {
-            return cfg.load();
-        }).then(res => {
             return expect(res.val).toBe(100);
         });
     })
 
+    // **** put config.test.json5 in your home directory
     it('test home config file', () => {
-        const cfg = new Config('home');
+        const cfg = new Config('config.test');
         cfg.dump({val: 100}).then(res => {
             return cfg.load();
         }).then(res => {

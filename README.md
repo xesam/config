@@ -1,25 +1,38 @@
 # Config
 
-a json5 config loader
+a simple json config loader.
 
 ## usage
 
+```shell script
+npm install @xesam/config
+```
+
+config.test.json5
+```json
+{
+    val: 100
+}
+```
+
+### load from input file
+
 ```javascript
-const cfg = new Config('t1', '1.json5');
+const cfg = new Config('config.test', 'config.test.json5');
 const c = cfg.loadSync(); 
-cfg.dumpSync({key:'new value'});
+console.log(c.val) // 100 
 
 ```
 
-or 
+or load from home dir
 
 ```javascript
-const cfg = new Config('t1', '1.json5');
+const cfg = new Config('config.test', 'config.test.json5');
 cfg.load().then(res => {
-    console.log(res);
+    console.log(res.val); // 100
 });
-cfg.dump({ val: 100 }).then(res => {
-    console.log('dump finished');
+cfg.dump({ val: 200 }).then(res => {
+    console.log(res.val); // 200
 });
 
 ```
