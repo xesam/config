@@ -1,7 +1,7 @@
 {
   "name": "@xesam/config",
-  "version": "0.0.1",
-  "description": "a json5 config loader",
+  "version": "0.0.2",
+  "description": "a simple json config loader",
   "main": "index.js",
   "scripts": {
     "test": "jest"
