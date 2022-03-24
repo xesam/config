@@ -5,57 +5,88 @@ const readFiles = require('read-files-promise');
 const json5 = require('json5');
 
 const ENCODING = 'utf-8';
-let NAME_SEQ = 0;
 
-function nextSeq() {
-    NAME_SEQ++;
-    return NAME_SEQ;
+function getByKeys(source, ...keys) {
+    while (keys.length) {
+        const key = keys.shift();
+        source = source[key];
+    }
+    return source;
 }
 
-function getUserHome() {
-    return process.env.HOME || process.env.USERPROFILE;
+function setByKeys(source, value, ...keys) {
+    if (!keys.length) {
+        return value;
+    }
+    while (keys.length > 1) {
+        const key = keys.shift();
+        source = source[key];
+    }
+    source[keys[0]] = value;
+    return source;
+}
+
+
+function getPath(configPath) {
+    if (path.isAbsolute(configPath)) {
+        return configPath;
+    }
+    const homePath = path.resolve(process.env.HOME || process.env.USERPROFILE, configPath);
+    if (fs.existsSync(homePath)) {
+        return homePath;
+    }
+    const workPath = path.resolve(process.cwd(), configPath);
+    if (fs.existsSync(workPath)) {
+        return workPath;
+    }
+    const dirPath = path.resolve(__dirname, configPath);
+    if (fs.existsSync(dirPath)) {
+        return dirPath;
+    }
+    return workPath;
 }
 
 class Config {
-    constructor(name, configPath) {
-        if (name) {
-            this.name = name;
-        } else {
-            this.name = `Config$${nextSeq()}`;
-        }
+    constructor(configPath) {
         if (typeof configPath === 'function') {
-            configPath = configPath(name);
-        }
-        this._configPath = this.getConfigPath(name, configPath);
-    }
-
-    getConfigPath(name, configPath) {
-        if (configPath) {
-            return path.resolve(process.cwd(), configPath);
+            this._path = configPath();
         } else {
-            return path.resolve(getUserHome(), `${name}.json5`);
+            this._path = this.getConfigPath(configPath);
         }
     }
 
-    load() {
-        return readFiles([this._configPath], {encoding: ENCODING})
-            .then(json5.parse);
+    getConfigPath(configPath) {
+        return getPath(configPath);
     }
 
-    loadSync() {
-        const data = fs.readFileSync(this._configPath, ENCODING);
-        return json5.parse(data);
-    }
-
-    dump(data) {
-        return writeFile(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING})
-            .then(()=>{
-                return data;
+    load(...keys) {
+        return readFiles([this._path], {encoding: ENCODING})
+            .then(json5.parse)
+            .then(res => {
+                return getByKeys(res, keys);
             });
     }
 
-    dumpSync(data) {
-        fs.writeFileSync(this._configPath, json5.stringify(data, null, 4), {encoding: ENCODING});
+    loadSync(...keys) {
+        const data = fs.readFileSync(this._path, ENCODING);
+        return getByKeys(json5.parse(data), keys);
+    }
+
+    dump(data, ...keys) {
+        return this.load()
+            .then(source => {
+                source = setByKeys(source, data, ...keys);
+                writeFile(this._path, json5.stringify(source, null, 4), {encoding: ENCODING})
+            }).then(() => {
+                return true;
+            });
+    }
+
+    dumpSync(data, ...keys) {
+        let source = this.loadSync();
+        source = setByKeys(source, data, ...keys);
+        fs.writeFileSync(this._path, json5.stringify(source, null, 4), {encoding: ENCODING});
+        return true;
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@xesam/config",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a simple json config loader",
   "main": "index.js",
   "scripts": {

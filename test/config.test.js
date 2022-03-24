@@ -1,38 +1,40 @@
 const Config = require('../src/Config');
+const path = require('path');
 
 describe('simple', () => {
-    it('test sync', () => {
-        const cfg = new Config('config.test', 'config.test.json5');
-        expect(cfg.name).toBe('config.test');
+    it('test getConfigPath', () => {
+        const cfg = new Config('');
+        expect(cfg.getConfigPath('Config.js')).toEqual(path.resolve(__dirname, '../src/Config.js'));
+        expect(cfg.getConfigPath('Config.js')).toEqual(path.resolve(__dirname, '../src/Config.js'));
+        expect(cfg.getConfigPath('NotExist.js')).toEqual(path.resolve(process.cwd(), 'NotExist.js'));
+        expect(cfg.getConfigPath('/Config.js')).toEqual('/Config.js');
+        expect(cfg.getConfigPath('c:/Config.js')).toEqual('c:/Config.js');
 
-        cfg.dumpSync({
-            val: 100
-        });
+    })
+    it('test load sync', () => {
+        const cfg = new Config('config.test.json5');
+
         const a1 = cfg.loadSync();
-        expect(a1.val).toBe(100);
-
-        cfg.dumpSync({
-            val: 200
+        expect(a1).toEqual({
+            key_1: 'val_1',
+            key_2: {
+                key_2_1: {
+                    key_2_1_1: 'val_2_1_1'
+                },
+                key_2_2: 'val_2_2'
+            }
         });
-        const a2 = cfg.loadSync();
-        expect(a2.val).toBe(200);
-
+    })
+    it('test load async', () => {
     })
 
-    it('test async', () => {
+    it('test load sync', () => {
         const cfg = new Config('config.test', 'config.test.json5');
         cfg.dump({val: 100}).then(res => {
             return expect(res.val).toBe(100);
         });
     })
 
-    // **** put config.test.json5 in your home directory
-    it('test home config file', () => {
-        const cfg = new Config('config.test');
-        cfg.dump({val: 100}).then(res => {
-            return cfg.load();
-        }).then(res => {
-            return expect(res.val).toBe(100);
-        });
+    it('test load async', () => {
     })
 });
