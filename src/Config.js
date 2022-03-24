@@ -31,13 +31,13 @@ function getPath(configPath) {
     if (path.isAbsolute(configPath)) {
         return configPath;
     }
-    const homePath = path.resolve(process.env.HOME || process.env.USERPROFILE, configPath);
-    if (fs.existsSync(homePath)) {
-        return homePath;
-    }
     const workPath = path.resolve(process.cwd(), configPath);
     if (fs.existsSync(workPath)) {
         return workPath;
+    }
+    const homePath = path.resolve(process.env.HOME || process.env.USERPROFILE, configPath);
+    if (fs.existsSync(homePath)) {
+        return homePath;
     }
     const dirPath = path.resolve(__dirname, configPath);
     if (fs.existsSync(dirPath)) {

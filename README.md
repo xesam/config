@@ -8,31 +8,44 @@ a simple json config loader.
 npm install @xesam/config
 ```
 
-config.test.json5
-```json
+### test data
+
+```js
 {
-    val: 100
+  key_1: 'val_1',
+  key_2: {
+    key_2_1: {
+      key_2_1_1: 'val_2_1_1'
+    },
+    key_2_2: 'val_2_2'
+  }
 }
 ```
 
-### load from input file
+### load config
+
+search path:
+
+1. absolute path
+2. working dir
+3. home dir
+4. source dir
+
+
 
 ```javascript
-const cfg = new Config('config.test', 'config.test.json5');
-const c = cfg.loadSync(); 
-console.log(c.val) // 100 
+const cfg = new Config('config.demo.json5');
+const c = cfg.loadSync("key_2", "key_2_1"); 
+console.log(c) //  {key_2_1_1: 'val_2_1_1'}
 
 ```
 
-or load from home dir
+### dump config
 
 ```javascript
-const cfg = new Config('config.test', 'config.test.json5');
-cfg.load().then(res => {
-    console.log(res.val); // 100
-});
-cfg.dump({ val: 200 }).then(res => {
-    console.log(res.val); // 200
+const cfg = new Config('config.demo.json5');
+cfg.dump({ val: 200 }).then(() => {
+    ...
 });
 
 ```
