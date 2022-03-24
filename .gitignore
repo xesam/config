@@ -3,3 +3,4 @@ package-lock.json
 .iml
 .idea
 dist
+*.test.json5

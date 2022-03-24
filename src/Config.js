@@ -60,25 +60,29 @@ class Config {
     }
 
     load(...keys) {
+        if (!fs.existsSync(this._path)) {
+            return Promise.resolve({});
+        }
         return readFiles([this._path], {encoding: ENCODING})
             .then(json5.parse)
             .then(res => {
-                return getByKeys(res, keys);
+                return getByKeys(res, ...keys);
             });
     }
 
     loadSync(...keys) {
+        if (!fs.existsSync(this._path)) {
+            return {};
+        }
         const data = fs.readFileSync(this._path, ENCODING);
-        return getByKeys(json5.parse(data), keys);
+        return getByKeys(json5.parse(data), ...keys);
     }
 
     dump(data, ...keys) {
         return this.load()
             .then(source => {
                 source = setByKeys(source, data, ...keys);
-                writeFile(this._path, json5.stringify(source, null, 4), {encoding: ENCODING})
-            }).then(() => {
-                return true;
+                return writeFile(this._path, json5.stringify(source, null, 4), {encoding: ENCODING})
             });
     }
 
